@@ -22,10 +22,16 @@ class GraphNode {
     this.outNodes = []
     this.isInitial = false
     this.isFinal = false
+    this.selected = false
   }
   draw(){
     fill(28, 42, 53);
-    stroke(255);
+    if(!this.selected){
+      stroke(255);
+    }
+    else {
+      stroke(255, 242, 0);
+    }
     ellipse(this.x, this.y, this.size, this.size)
 
     if(this.isFinal){
@@ -68,6 +74,7 @@ class Edge {
     let distance = sqrt(pow(this.start.y - this.end.y,2) + pow(this.end.x - this.start.x,2))
     distance = curveDistance/distance
     
+    //Control line shape
     stroke(255)
     if(this.edgeType == "straight"){
       line(this.start.x, this.start.y, this.end.x, this.end.y)
@@ -104,8 +111,8 @@ class Edge {
 
     fill(255)
     noStroke()
-    // this code is to make the arrow point
-
+    
+    //Control arrow point
     var offset = 8
     push() //start new drawing state
     var angle = atan2(this.start.y - this.end.y, this.start.x - this.end.x); //gets the angle of the line
@@ -126,21 +133,22 @@ class Edge {
     pop();
 
     textSize(12)
+
+    //control transition labels
+    let labelString = ""
+    for(let i = 0; i < this.transition.length; i++) {
+      labelString += this.transition[i] + ", "
+    }
+
     if(this.edgeType == "straight"){
-      for(let i = 0; i < this.transition.length; i++) {
-        text(this.transition[i], (this.start.x + this.end.x)/2, (this.start.y + this.end.y)/2 - (i * 20) - 20)
-      }
+      text(labelString.substring(0,labelString.length - 2), (this.start.x + this.end.x)/2, (this.start.y + this.end.y)/2 - 20)
+
     }
     else if(this.edgeType == "curve"){
-      
-      for(let i = 0; i < this.transition.length; i++) {
-        text(this.transition[i], midX + distance * (this.start.y-this.end.y), midY + distance * (this.end.x-this.start.x) - (i * 20) - 20)
-      }
+      text(labelString.substring(0,labelString.length - 2), midX + distance * (this.start.y-this.end.y), midY + distance * (this.end.x-this.start.x)- 20)
     }
     else if(this.edgeType == "loop"){
-      for(let i = 0; i < this.transition.length; i++) {
-        text(this.transition[i], this.start.x, this.start.y - curveDistance - (i * 20) - 10)
-      }
+      text(labelString.substring(0,labelString.length - 2), this.start.x, this.start.y - curveDistance - 10)
     }
 
     if(this.editingTransition){
@@ -162,16 +170,23 @@ class Edge {
       console.log(test)
       clickMode = "addEdge"
       let endNode = this.end
-      for(let i = 0; i < (edges.length - 1); i++) {
-        if(edges[i].start == this.start && edges[i].end == this.end){
+      // for(let i = 0; i < (edges.length - 1); i++) {
+      //   if(edges[i].start == this.start && edges[i].end == this.end){
+      //     console.log("Connection already exists")
+      //     edges[i].transition.push(tempTransition)
+      //     edges.pop()
+      //     console.log(edges[edges.length - 1])
+      //   }
+      // }
+      for(let node of this.start.outNodes){
+        if(node.edge.end == this.end){
           console.log("Connection already exists")
-          edges[i].transition.push(tempTransition)
+          node.edge.transition.push(tempTransition)
           edges.pop()
-          console.log(edges[edges.length - 1])
         }
       }
 
-      this.start.outNodes.push({transition: tempTransition, target: this.end})
+      this.start.outNodes.push({transition: tempTransition, target: this.end, edge: this})
       this.transition.push(tempTransition)
       inp.position(-100, -100)
       this.editingTransition = false
@@ -202,6 +217,10 @@ function handleAddNode() {
 
 function handleRemoveNode() {
   clickMode = "removeNode"
+}
+
+function clickTest() {
+  alert("I am called")
 }
 
 function handleAddEdge() {
@@ -367,7 +386,7 @@ function draw() {
   textFont("Open Sans");
   textSize(30)
   textStyle(BOLD);
-  text("Bootleg JFLAP DFAutomaton", 20, 30)
+  text("Deterministic Finite Automata Simulator", 20, 30)
   textSize(15)
   text("Check string", 1100, 40)
   
@@ -418,6 +437,7 @@ function mousePressed(){
         if(selectedNode != undefined){
           selectedNode.x = mouseX
           selectedNode.y = mouseY
+          selectedNode.selected = true;
           break
         }
       }
@@ -487,6 +507,10 @@ function mouseDragged(){
 
 function mouseReleased(){
   //console.log(startnode)
+  if(selectedNode != undefined){
+    selectedNode.selected = false
+  }
+
   if(clickMode == "addEdge"){
     for(let node of nodes){
       endnode = node.clicked()
@@ -497,13 +521,24 @@ function mouseReleased(){
     if(startnode != undefined && endnode != undefined){
       let lineType = "straight"
 
-      for(let edge of edges){
-        if(startnode != endnode && edge.start == endnode && edge.end == startnode){
+      // for(let edge of edges){
+      //   if(startnode != endnode && edge.start == endnode && edge.end == startnode){
+      //     lineType = "curve"
+      //     edge.edgeType = "curve"
+      //     break
+      //   }
+      // }
+
+      for(let node of endnode.outNodes){
+        console.log(node)
+        if(startnode != endnode && node.edge.start == endnode && node.edge.end == startnode){
+          console.log("IT WORKS")
           lineType = "curve"
-          edge.edgeType = "curve"
+          node.edge.edgeType = "curve"
           break
         }
       }
+
       if(startnode == endnode){
         lineType = "loop"
       }
