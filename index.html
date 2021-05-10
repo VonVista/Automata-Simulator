@@ -8,7 +8,27 @@
 
   </head>
   <body>
-    <script src="sketch.js"></script>
+    
     <!-- <button onClick = clickTest()>Click test</button> -->
+    <h1>Deterministic Finite Automata Simulator</h1>
+    <div class="controlsParent"> 
+      <div class="controls">
+        <button onClick = handleMouse()>
+          Mouse
+        </button>
+        <button onClick = handleAddNode()>Add Node</button>
+        <button onClick = handleAddEdge()>Add Edge</button>
+        <button onClick = handleRemoveNode()>Remove Node/Edge</button>
+      </div>
+      <div class="controls"> 
+        <button onClick = handleSetInitialState()>Set Initial State</button>
+        <button onClick = handleSetFinalState()>Set Final State</button>
+        <button onClick = handleRemoveNodeState()>Remove Node State</button>
+      </div>
+    </div>
+    
+    
+    <script src="sketch.js"></script>
+    <div id="sketchHolder"></div>
   </body>
 </html>

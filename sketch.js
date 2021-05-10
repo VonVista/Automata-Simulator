@@ -65,6 +65,11 @@ class Edge {
     this.edgeType = edgeType
   }
   draw(){
+
+    if(this.end == {}){
+      console.log("EMPTY OBJECT")
+    }
+
     var center = 25
 
     var midX = (this.start.x + this.end.x)/2
@@ -188,7 +193,7 @@ class Edge {
 
       this.start.outNodes.push({transition: tempTransition, target: this.end, edge: this})
       this.transition.push(tempTransition)
-      inp.position(-100, -100)
+      inp.position(-1000, -1000)
       this.editingTransition = false
       console.log(this.start.outNodes)
       console.log(this.transition)
@@ -313,55 +318,55 @@ function applyInputStyle() {
 }
 
 function setup() {
-  createCanvas(windowWidth, windowHeight);
-
+  let cnv = createCanvas(windowWidth, windowHeight);
+  cnv.parent("sketchHolder");
+  // buttonNode = createButton("Add Node");
+  // buttonNode.position(10, 60);
+  // buttonNode.mousePressed(handleAddNode);
+  // applyButtonStyle()
   
-  buttonNode = createButton("Add Node");
-  buttonNode.position(10, 60);
-  buttonNode.mousePressed(handleAddNode);
-  applyButtonStyle()
+  // buttonNode = createButton("Remove Node");
+  // buttonNode.position(10, 110);
+  // buttonNode.mousePressed(handleRemoveNode);
+  // applyButtonStyle()
+
+  // buttonNode = createButton("Add Edge");
+  // buttonNode.position(100, 60);
+  // buttonNode.mousePressed(handleAddEdge);
+  // applyButtonStyle()
   
-  buttonNode = createButton("Remove Node");
-  buttonNode.position(10, 110);
-  buttonNode.mousePressed(handleRemoveNode);
-  applyButtonStyle()
+  // buttonNode = createButton("Mouse");
+  // buttonNode.position(186.5, 60);
+  // buttonNode.mousePressed(handleMouse);
+  // applyButtonStyle()
 
-  buttonNode = createButton("Add Edge");
-  buttonNode.position(100, 60);
-  buttonNode.mousePressed(handleAddEdge);
-  applyButtonStyle()
-  
-  buttonNode = createButton("Mouse");
-  buttonNode.position(186.5, 60);
-  buttonNode.mousePressed(handleMouse);
-  applyButtonStyle()
+  // buttonNode = createButton("Set Initial State");
+  // buttonNode.position(120, 110);
+  // buttonNode.mousePressed(handleSetInitialState);
+  // applyButtonStyle()
 
-  buttonNode = createButton("Set Initial State");
-  buttonNode.position(120, 110);
-  buttonNode.mousePressed(handleSetInitialState);
-  applyButtonStyle()
+  // buttonNode = createButton("Set Final State");
+  // buttonNode.position(233, 110);
+  // buttonNode.mousePressed(handleSetFinalState);
+  // applyButtonStyle()
 
-  buttonNode = createButton("Set Final State");
-  buttonNode.position(233, 110);
-  buttonNode.mousePressed(handleSetFinalState);
-  applyButtonStyle()
+  // buttonNode = createButton("Remove Node State");
+  // buttonNode.position(342, 110);
+  // buttonNode.mousePressed(handleRemoveNodeState);
+  // applyButtonStyle()
 
-  buttonNode = createButton("Remove Node State");
-  buttonNode.position(342, 110);
-  buttonNode.mousePressed(handleRemoveNodeState);
-  applyButtonStyle()
+  // stringInput = createInput();
+  // stringInput.position(1100, 60);
+  // stringInput.input(handleStringInput)
+  // applyInputStyle()
 
-  stringInput = createInput();
-  stringInput.position(1100, 60);
-  stringInput.input(handleStringInput)
-  applyInputStyle()
-
-  buttonNode = createButton("Submit");
-  buttonNode.position(1290, 60);
-  buttonNode.mousePressed(testString);
-  applyButtonStyle()
+  // buttonNode = createButton("Submit");
+  // buttonNode.position(1290, 60);
+  // buttonNode.mousePressed(testString);
+  // applyButtonStyle()
   
   inp = createInput("")
+  inp.parent("sketchHolder")
   inp.size(100);
   inp.position(-200,-200)
   
@@ -378,17 +383,17 @@ let selectedNode
 function draw() {
   noStroke()
   background(28, 42, 53);
-  fill(23, 30, 36)
-  rect(windowWidth/2, 0, windowWidth, 350)
+  // fill(23, 30, 36)
+  // rect(windowWidth/2, 0, windowWidth, 350)
   
-  textAlign(LEFT, CENTER)
-  fill(255, 255, 255);
-  textFont("Open Sans");
-  textSize(30)
-  textStyle(BOLD);
-  text("Deterministic Finite Automata Simulator", 20, 30)
-  textSize(15)
-  text("Check string", 1100, 40)
+  // textAlign(LEFT, CENTER)
+  // fill(255, 255, 255);
+  // textFont("Open Sans");
+  // textSize(30)
+  // textStyle(BOLD);
+  // text("Deterministic Finite Automata Simulator", 20, 30)
+  // textSize(15)
+  // text("Check string", 1100, 40)
   
 
   textAlign(CENTER, CENTER)
@@ -413,7 +418,7 @@ function draw() {
 }
 
 function mousePressed(){
-  if(mouseY > 175 && mouseButton == LEFT){
+  if(mouseButton == LEFT){
     if(clickMode == "addNode"){
       var newNode = new GraphNode("q" + str(nodes.length), mouseX, mouseY)
       nodes.push(newNode)
@@ -445,8 +450,11 @@ function mousePressed(){
     else if(clickMode == "removeNode"){
       for(let [index, node] of nodes.entries()){
         selectedNode = node.clicked()
-        if(selectedNode != undefined){
+        if(selectedNode != undefined){ //selected node is object to delete
+          Object.keys(selectedNode).forEach(function(key) { delete selectedNode[key]; });
+          selectedNode = undefined
           nodes.splice(index, 1)
+
           break
         }
       }
@@ -490,7 +498,7 @@ function mousePressed(){
 }
 
 function mouseDragged(){
-  if(mouseY > 175 && mouseButton == LEFT){
+  if(mouseButton == LEFT){
     if(clickMode == "addEdge"){
       endx = mouseX
       endy = mouseY
