@@ -10,20 +10,26 @@
   <body>
     
     <!-- <button onClick = clickTest()>Click test</button> -->
-    <h1>Deterministic Finite Automata Simulator</h1>
-    <div class="controlsParent"> 
-      <div class="controls">
-        <button onClick = handleMouse()>
-          Mouse
-        </button>
-        <button onClick = handleAddNode()>Add Node</button>
-        <button onClick = handleAddEdge()>Add Edge</button>
-        <button onClick = handleRemoveNode()>Remove Node/Edge</button>
-      </div>
-      <div class="controls"> 
-        <button onClick = handleSetInitialState()>Set Initial State</button>
-        <button onClick = handleSetFinalState()>Set Final State</button>
-        <button onClick = handleRemoveNodeState()>Remove Node State</button>
+    <div id="controlPanel" height=2000>
+      <h1>Deterministic Finite Automata Simulator</h1>
+      <div class="controlsParent"> 
+        <div class="controls">
+          <button onClick = handleMouse()>
+            Mouse
+          </button>
+          <button onClick = handleAddNode()>Add Node</button>
+          <button onClick = handleAddEdge()>Add Edge</button>
+          <button onClick = handleRemoveNode()>Remove Node/Edge</button>
+        </div>
+        <div class="controls"> 
+          <button onClick = handleSetInitialState()>Set Initial State</button>
+          <button onClick = handleSetFinalState()>Set Final State</button>
+          <button onClick = handleRemoveNodeState()>Remove Node State</button>
+        </div>
+        <div class="controls"> 
+          <input type="text" id="testString" placeholder="Input string to test" onChange=handleStringInput() class="input_field"></input>
+          <button onClick = testString()>Submit</button>
+        </div>
       </div>
     </div>
     

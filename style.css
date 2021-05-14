@@ -38,6 +38,33 @@ button {
   margin: 2px;
 }
 
+form {
+  background-color:#29597e;
+  border: none;
+  color: white;
+  padding: 1.7vh;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight:normal;
+  margin: 2px;
+}
+
+.input_field {
+  background-color:#29597e;
+  border: none;
+  color: white;
+  text-align: center;
+  text-decoration: none;
+  display: inline-block;
+  font-size: 12px;
+  font-family: 'Open Sans', sans-serif;
+  font-weight:normal;
+  padding: 1.3vh;
+}
+
 h1 {
   font-family: 'Open Sans', sans-serif;
   font-weight: bolder;

@@ -13,25 +13,38 @@ let test = 0
 canvasWidth = 400
 canvasHeight = 400
 
+//COLORS
+let YELLOW = [255, 242, 0]
+let WHITE = [255,255,255]
+
 class GraphNode {
   constructor(name, x, y){
     this.name = name
     this.x = x
     this.y = y
     this.size = 50
-    this.outNodes = []
+    this.coNodes = []
     this.isInitial = false
     this.isFinal = false
     this.selected = false
+    this.traversed = false     //FOR TRAVERSAL
+    this.color = [255,255,255]
   }
   draw(){
     fill(28, 42, 53);
-    if(!this.selected){
-      stroke(255);
+    stroke(this.color[0], this.color[1], this.color[2])
+
+    if(this.color[0] < 255){
+      this.color[0] += 3
     }
-    else {
-      stroke(255, 242, 0);
+    if(this.color[1] < 255){
+      this.color[1] += 3
     }
+    if(this.color[2] < 255){
+      this.color[2] += 3
+    }
+
+
     ellipse(this.x, this.y, this.size, this.size)
 
     if(this.isFinal){
@@ -63,11 +76,28 @@ class Edge {
     this.editingTransition = true
     this.transition = []
     this.edgeType = edgeType
+    this.traversed = false     //FOR TRAVERSAL
+    this.color = [255,255,255]
   }
   draw(){
 
-    if(this.end == {}){
-      console.log("EMPTY OBJECT")
+    if(this.end.name == undefined){
+      for(let [index, edge] of edges.entries()){
+        if(edge == this && this.start.coNodes != undefined){
+          for(let [index, node] of this.start.coNodes.entries()){
+            if(node.target = this.end){
+              this.start.coNodes.splice(index, 1)
+            }
+            console.log(this.start.coNodes)
+          }
+          
+          edges.splice(index, 1)
+        }
+      }
+      return
+    }
+    if(this.start.name == undefined){
+      return
     }
 
     var center = 25
@@ -80,7 +110,18 @@ class Edge {
     distance = curveDistance/distance
     
     //Control line shape
-    stroke(255)
+    stroke(this.color[0], this.color[1], this.color[2])
+
+    if(this.color[0] < 255){
+      this.color[0] += 3
+    }
+    if(this.color[1] < 255){
+      this.color[1] += 3
+    }
+    if(this.color[2] < 255){
+      this.color[2] += 3
+    }
+
     if(this.edgeType == "straight"){
       line(this.start.x, this.start.y, this.end.x, this.end.y)
     }
@@ -114,7 +155,7 @@ class Edge {
       endShape()
     }
 
-    fill(255)
+    fill(this.color[0], this.color[1], this.color[2])
     noStroke()
     
     //Control arrow point
@@ -159,7 +200,36 @@ class Edge {
     if(this.editingTransition){
       this.editTransition()
     }
+
+
+    
   }
+
+  clicked(){
+    let clickArea = 15
+
+    var midX = (this.start.x + this.end.x)/2
+    var midY = (this.start.y + this.end.y)/2
+
+    let curveDistance = 25
+    let distance = sqrt(pow(this.start.y - this.end.y,2) + pow(this.end.x - this.start.x,2))
+    distance = curveDistance/distance
+
+    if(this.edgeType == "straight" && dist((this.start.x + this.end.x)/2, (this.start.y + this.end.y)/2, mouseX, mouseY) < clickArea){
+      console.log("EDGE CLICK")
+      return this
+    }
+    
+    else if(this.edgeType == "curve" && dist(midX + distance * (this.start.y-this.end.y), midY + distance * (this.end.x-this.start.x), mouseX, mouseY) < clickArea){
+      console.log("EDGE CLICK")
+      return this
+    }
+    if(this.edgeType == "loop" && dist(this.start.x, this.start.y - 60, mouseX, mouseY) < clickArea){
+      console.log("EDGE CLICK")
+      return this
+    }
+  }
+
   editTransition(){
     
     inp.position((this.start.x + this.end.x)/2, (this.start.y + this.end.y)/2);
@@ -175,27 +245,26 @@ class Edge {
       console.log(test)
       clickMode = "addEdge"
       let endNode = this.end
-      // for(let i = 0; i < (edges.length - 1); i++) {
-      //   if(edges[i].start == this.start && edges[i].end == this.end){
-      //     console.log("Connection already exists")
-      //     edges[i].transition.push(tempTransition)
-      //     edges.pop()
-      //     console.log(edges[edges.length - 1])
-      //   }
-      // }
-      for(let node of this.start.outNodes){
+
+      let edgeToUse = this;
+
+      for(let node of this.start.coNodes){
         if(node.edge.end == this.end){
           console.log("Connection already exists")
           node.edge.transition.push(tempTransition)
+          //this.start.coNodes[this.start.coNodes.length - 1].edge = node.edge;
+          edgeToUse = node.edge
+          //this.start.coNodes.pop()
           edges.pop()
+          console.log(edges)
         }
       }
 
-      this.start.outNodes.push({transition: tempTransition, target: this.end, edge: this})
+      this.start.coNodes.push({transition: tempTransition, target: this.end, edge: edgeToUse})
       this.transition.push(tempTransition)
       inp.position(-1000, -1000)
       this.editingTransition = false
-      console.log(this.start.outNodes)
+      console.log(this.start.coNodes)
       console.log(this.transition)
             
       
@@ -250,10 +319,17 @@ function handleRemoveNodeState() {
 }
 
 function handleStringInput() { 
-  stringValue = this.value()
+  //stringValue = this.value()
+  //document.getElementById("myText").value = "Johnny Bravo";
+  stringValue = document.getElementById("testString").value
 }
 
-function testString() {
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve, ms));
+}
+
+async function testString() {
+  let animationTime = 400
 
   let curNode = null;
   for(let node of nodes){
@@ -263,13 +339,29 @@ function testString() {
     }
   }
   if(curNode != null){
+    curNode.color = [255, 242, 0]
+    await sleep(animationTime)
+
     for(let s of stringValue){
       charFound = false
-      for(let node of curNode.outNodes){
+      console.log(edges.length)
+      for(let node of curNode.coNodes){
         if(node.transition === s){
+          
+          //curNode.color = [255,255,255] //OLD NODE RESET COLOR
+          node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+          await sleep(animationTime)
+
+          //node.edge.color = [255,255,255] //TRAVERSED EDGE RESET COLOR
+
           console.log(node.target)
           curNode = node.target
-          console.log("Here")
+
+          curNode.color = [255, 242, 0] //NEW NODE
+
+          await sleep(animationTime)
+          
           charFound = true
           break
         }
@@ -288,22 +380,11 @@ function testString() {
       console.log("Reject")
       alert("String is Rejected")
     }
+
+    //curNode.color = [255,255,255] //RESET COLOR NODE
   }
 }
 
-function applyButtonStyle() {
-  buttonNode.style("background-color","#29597e")
-  buttonNode.style("border", "none")
-  buttonNode.style("color", "white")
-  buttonNode.style("padding", "12px")
-  buttonNode.style("text-align", "center")
-  buttonNode.style("text-decoration", "none")
-  buttonNode.style("display", "inline-block")
-  buttonNode.style("font-size", "12px")
-  buttonNode.style("font-family", "'Open Sans', sans-serif")
-  buttonNode.style("font-weight","normal")
-  buttonNode.style("margin","1px")
-}
 
 function applyInputStyle() {
   stringInput.style("border", "none")
@@ -320,50 +401,7 @@ function applyInputStyle() {
 function setup() {
   let cnv = createCanvas(windowWidth, windowHeight);
   cnv.parent("sketchHolder");
-  // buttonNode = createButton("Add Node");
-  // buttonNode.position(10, 60);
-  // buttonNode.mousePressed(handleAddNode);
-  // applyButtonStyle()
-  
-  // buttonNode = createButton("Remove Node");
-  // buttonNode.position(10, 110);
-  // buttonNode.mousePressed(handleRemoveNode);
-  // applyButtonStyle()
-
-  // buttonNode = createButton("Add Edge");
-  // buttonNode.position(100, 60);
-  // buttonNode.mousePressed(handleAddEdge);
-  // applyButtonStyle()
-  
-  // buttonNode = createButton("Mouse");
-  // buttonNode.position(186.5, 60);
-  // buttonNode.mousePressed(handleMouse);
-  // applyButtonStyle()
-
-  // buttonNode = createButton("Set Initial State");
-  // buttonNode.position(120, 110);
-  // buttonNode.mousePressed(handleSetInitialState);
-  // applyButtonStyle()
-
-  // buttonNode = createButton("Set Final State");
-  // buttonNode.position(233, 110);
-  // buttonNode.mousePressed(handleSetFinalState);
-  // applyButtonStyle()
-
-  // buttonNode = createButton("Remove Node State");
-  // buttonNode.position(342, 110);
-  // buttonNode.mousePressed(handleRemoveNodeState);
-  // applyButtonStyle()
-
-  // stringInput = createInput();
-  // stringInput.position(1100, 60);
-  // stringInput.input(handleStringInput)
-  // applyInputStyle()
-
-  // buttonNode = createButton("Submit");
-  // buttonNode.position(1290, 60);
-  // buttonNode.mousePressed(testString);
-  // applyButtonStyle()
+  console.log(cnv)
   
   inp = createInput("")
   inp.parent("sketchHolder")
@@ -378,23 +416,11 @@ let nodes = []
 let edges = []
 let startx = 0, starty = 0, endx = 0, endy = 0
 let startnode = undefined, endnode = undefined
-let selectedNode
+let selectedNode, selectedEdge
 
 function draw() {
   noStroke()
   background(28, 42, 53);
-  // fill(23, 30, 36)
-  // rect(windowWidth/2, 0, windowWidth, 350)
-  
-  // textAlign(LEFT, CENTER)
-  // fill(255, 255, 255);
-  // textFont("Open Sans");
-  // textSize(30)
-  // textStyle(BOLD);
-  // text("Deterministic Finite Automata Simulator", 20, 30)
-  // textSize(15)
-  // text("Check string", 1100, 40)
-  
 
   textAlign(CENTER, CENTER)
   
@@ -404,8 +430,6 @@ function draw() {
   
   //nodes render
   
-  
-  
   for(let edge of edges){
     edge.draw()
   }
@@ -414,14 +438,26 @@ function draw() {
     node.draw()
   }
 
-  
+  testFunction()
 }
 
-function mousePressed(){
+function sleep(ms){
+  return new Promise(resolve => setTimeout(resolve,ms));
+}
+
+async function testFunction() {
+  await sleep(1000)
+  //console.log("ASYNC")
+}
+
+async function mousePressed(){
+
   if(mouseButton == LEFT){
     if(clickMode == "addNode"){
+      console.log(nodes)
       var newNode = new GraphNode("q" + str(nodes.length), mouseX, mouseY)
       nodes.push(newNode)
+      
     }
 
     else if(clickMode == "addEdge"){
@@ -442,7 +478,7 @@ function mousePressed(){
         if(selectedNode != undefined){
           selectedNode.x = mouseX
           selectedNode.y = mouseY
-          selectedNode.selected = true;
+          selectedNode.color = [255, 242, 0];
           break
         }
       }
@@ -452,12 +488,41 @@ function mousePressed(){
         selectedNode = node.clicked()
         if(selectedNode != undefined){ //selected node is object to delete
           Object.keys(selectedNode).forEach(function(key) { delete selectedNode[key]; });
-          selectedNode = undefined
+          console.log(selectedNode)
           nodes.splice(index, 1)
 
           break
         }
       }
+
+      for(let [index, edge] of edges.entries()){
+        selectedEdge = edge.clicked()
+        if(selectedEdge != undefined){ //selected node is object to delete
+
+
+          for(let edge of edges){
+
+            if(edge.end == selectedEdge.start && edge.start == selectedEdge.end){
+              edge.edgeType = "straight"
+              break
+            }
+          }
+
+          for(let [index, node] of selectedEdge.start.coNodes.entries()){
+            if(node.edge = selectedEdge){
+
+              selectedEdge.start.coNodes.splice(index, 1)
+              console.log(selectedEdge.start.coNodes)
+            }
+          }
+          console.log(selectedEdge.start.coNodes)
+          edges.splice(index, 1)
+
+          break
+        }
+      }
+
+
     }
     else if(clickMode == "setInitialState"){
       for(let node of nodes){
@@ -516,7 +581,7 @@ function mouseDragged(){
 function mouseReleased(){
   //console.log(startnode)
   if(selectedNode != undefined){
-    selectedNode.selected = false
+    selectedNode.color = [255, 255, 255];
   }
 
   if(clickMode == "addEdge"){
@@ -529,15 +594,7 @@ function mouseReleased(){
     if(startnode != undefined && endnode != undefined){
       let lineType = "straight"
 
-      // for(let edge of edges){
-      //   if(startnode != endnode && edge.start == endnode && edge.end == startnode){
-      //     lineType = "curve"
-      //     edge.edgeType = "curve"
-      //     break
-      //   }
-      // }
-
-      for(let node of endnode.outNodes){
+      for(let node of endnode.coNodes){
         console.log(node)
         if(startnode != endnode && node.edge.start == endnode && node.edge.end == startnode){
           console.log("IT WORKS")
