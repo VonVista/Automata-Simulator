@@ -128,13 +128,13 @@ h1 {
   appearance: none;
   width: 25px;
   height: 25px;
-  background-color:#29597e;
+  background-color:#7e2929;
   cursor: pointer;
 }
 
 .slider::-moz-range-thumb {
   width: 25px;
   height: 25px;
-  background-color:#29597e;
+  background-color:#7e2929;
   cursor: pointer;
 }

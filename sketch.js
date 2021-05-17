@@ -6,6 +6,7 @@ let stringValue = ""
 let keyPress
 let editingMode = false
 let animationTime = 300
+let stopRun = false;
 
 const controlsHeight = document.getElementById("controlPanel").offsetHeight 
 
@@ -345,6 +346,10 @@ function handleRemoveNodeState() {
   clickMode = "removeNodeState"
 }
 
+function handleStopRun() {
+  stopRun = true;
+}
+
 function handleStringInput() { 
   //stringValue = this.value()
   //document.getElementById("myText").value = "Johnny Bravo";
@@ -366,123 +371,22 @@ function sleep(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-async function testString() {
-
-  let curNode = null;
-  for(let node of nodes){
-    if(node.isInitial){
-      curNode = node
-      break
-    }
-  }
-  if(curNode != null){
-    curNode.color = [255, 242, 0]
-    await sleep(animationTime)
-
-    for(let s of stringValue){
-      charFound = false
-      //console.log(edges.length)
-      for(let node of curNode.coNodes){
-        if(node.transition === s){
-          
-          node.edge.color = [255, 242, 0] //TRAVERSED EDGE
-
-          await sleep(animationTime)
-
-
-          //console.log(node.target)
-          curNode = node.target
-
-          curNode.color = [255, 242, 0] //NEW NODE
-
-          await sleep(animationTime)
-          
-          charFound = true
-          break
-        }
-      }
-      if(!charFound){
-        console.log("Reject")
-        alert("String is Rejected")
-        return
-      }
-    }
-    if(curNode.isFinal){
-      console.log("Accept")
-      alert("String is accepted")
-    }
-    else {
-      console.log("Reject")
-      alert("String is Rejected")
-    }
-  }
-}
-
-let fromEpsilon
+//let epsilonCheck
 
 async function testStringHelper() {
   let curNode = null;
-  fromEpsilon = false;
+  //epsilonCheck = true;
   for(let node of nodes){
     if(node.isInitial){
       curNode = node
       break
     }
   }
-
-/*
-  if(stringValue == "" && curNode != null){
-    let epsilonExists
-    let stopLoop = false
-    let accepted = false
-    while(!stopLoop){
-      epsilonExists = false
-      
-      curNode.color = [255, 242, 0] //NEW NODE
-
-      await sleep(animationTime)
-
-      if(curNode.isFinal){
-        accepted = true
-      }
-
-      for(let node of curNode.coNodes){
-        if(node.transition == "ε"){
-          node.edge.color = [255, 242, 0] //TRAVERSED EDGE
-    
-          await sleep(animationTime)
-    
-          curNode = node.target
-
-          
-
-          epsilonExists = true
-          
-          break
-        }
-      }
-      if(!epsilonExists){
-        stopLoop = true
-      }
-
-    }
-    if(accepted == true){
-      alert("String is accepted")
-      //console.log("String is accepted")
-    }
-    else {
-      alert("String is rejected")
-      //console.log("String is rejected")
-    }
-
-    return
-  }
-*/
 
   if(curNode != null){
     //curNode.color = [255, 242, 0]
     //await sleep(animationTime)
-    if(await testStringRecursion(curNode, 0)){
+    if(await testStringRecursion(curNode, 0, true)){
       alert("String is accepted")
       //console.log("String is accepted")
     }
@@ -492,52 +396,20 @@ async function testStringHelper() {
     }
   }
 }
-async function testStringRecursion(curNode, index){
+
+
+async function testStringRecursion(curNode, index, epsilonCheck){
   
-  curNode.color = [255, 242, 0] //NEW NODE
-  await sleep(animationTime)
-
-  let accepted = false
-  for(let node of curNode.coNodes){
-    
-    if(index < stringValue.length && node.transition == stringValue[index]){
-      fromEpsilon = false
-      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
-
-      await sleep(animationTime)
-
-      curNode = node.target
-
-      if(await testStringRecursion(curNode, index + 1)){
-        accepted = true
-        console.log(accepted)
-        continue
-      }
-    }
-    else if(node.transition == "ε"){
-      console.log("EPSILON YES")
-      fromEpsilon = true
-      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
-
-      await sleep(animationTime)
-
-      curNode = node.target
-
-      if(index == stringValue.length && curNode.isFinal){
-        accepted = true
-      }
-
-      if(await testStringRecursion(curNode, index)){
-        accepted = true
-        console.log(accepted)
-        continue
-      }
-    }
-
+  if(epsilonCheck == true){
+    curNode.color = [255, 242, 0] //NEW NODE
+    await sleep(animationTime)
   }
-  console.log("Here")
-  console.log(curNode)
-  if(index == stringValue.length && fromEpsilon == false){
+
+  console.log(stringValue.length)
+  console.log(epsilonCheck)
+  console.log(index)
+  if(index == stringValue.length && epsilonCheck == false){
+    console.log("NANDITO SYA")
     if(curNode.isFinal){
       console.log("RETURN TRUE")
       return true
@@ -548,7 +420,63 @@ async function testStringRecursion(curNode, index){
     }
   }
 
-  if(accepted == true){
+  let accepted = false
+  for(let node of curNode.coNodes){
+    
+    if(stopRun == true){
+      stopRun = false
+      return
+    }
+
+
+    if(node.transition == stringValue[index]){
+      //epsilonCheck = false
+      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+      await sleep(animationTime)
+
+      if(index == stringValue.length && curNode.isFinal){
+        accepted = true
+      }
+
+      curNode = node.target
+
+      
+
+      if(await testStringRecursion(curNode, index + 1, true)){
+        accepted = true
+        console.log(accepted)
+        continue
+      }
+    }
+    else if(node.transition == "ε"){
+      console.log("EPSILON YES")     
+      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+      await sleep(animationTime)
+
+      if(index == stringValue.length && curNode.isFinal){
+        accepted = true
+      }
+
+      curNode = node.target
+
+      
+
+      if(await testStringRecursion(curNode, index, true)){
+        accepted = true
+        console.log(accepted)
+        continue
+      }
+    }
+  }
+
+  //epsilonCheck = false
+
+  // console.log("Here")
+  // console.log(accepted)
+
+  if(accepted == true || await testStringRecursion(curNode, stringValue.length, false)){
     console.log("NANDITO")
     return true
   }
@@ -586,12 +514,47 @@ let edges = []
 let startx = 0, starty = 0, endx = 0, endy = 0
 let startnode = undefined, endnode = undefined
 let selectedNode, selectedEdge
+let modeText = "Mouse"
 
 function draw() {
   noStroke()
   background(28, 42, 53);
 
+  fill(255)
+  textAlign(LEFT, TOP)
+  
+  switch(clickMode) {
+    
+    case "none":
+      modeText = "General: Mouse"
+      break;
+    case "addEdge":
+      modeText = "General: Add Edge"
+      break;
+    case "addNode":
+      modeText = "General: Add Node"
+      break;
+    case "removeNode":
+      modeText = "General: Remove Node/Edge"
+      break;
+    case "setInitialState":
+      modeText = "Modify Node: Set Initial"
+      break;
+    case "setFinalState":
+      modeText = "Modify Node: Set Final"
+      break
+    case "removeNodeState":
+      modeText = "Modify Node: Remove state"
+      break
+    default:
+      // code block
+  }
+
+
+  text(modeText, 10, 10)
+
   textAlign(CENTER, CENTER)
+  
   
   //tempLine
   stroke(255)
@@ -796,3 +759,112 @@ function mouseReleased(){
   }
 }
 
+
+
+
+
+//ARCHIVED CODES
+
+//DFA only code
+
+async function testString() {
+
+  let curNode = null;
+  for(let node of nodes){
+    if(node.isInitial){
+      curNode = node
+      break
+    }
+  }
+  if(curNode != null){
+    curNode.color = [255, 242, 0]
+    await sleep(animationTime)
+
+    for(let s of stringValue){
+      charFound = false
+      //console.log(edges.length)
+      for(let node of curNode.coNodes){
+        if(node.transition === s){
+          
+          node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+          await sleep(animationTime)
+
+
+          //console.log(node.target)
+          curNode = node.target
+
+          curNode.color = [255, 242, 0] //NEW NODE
+
+          await sleep(animationTime)
+          
+          charFound = true
+          break
+        }
+      }
+      if(!charFound){
+        console.log("Reject")
+        alert("String is Rejected")
+        return
+      }
+    }
+    if(curNode.isFinal){
+      console.log("Accept")
+      alert("String is accepted")
+    }
+    else {
+      console.log("Reject")
+      alert("String is Rejected")
+    }
+  }
+}
+
+// ARCHIVED || for testStringHelper
+// if(stringValue == "" && curNode != null){
+  //   let epsilonExists
+  //   let stopLoop = false
+  //   let accepted = false
+  //   while(!stopLoop){
+  //     epsilonExists = false
+      
+  //     curNode.color = [255, 242, 0] //NEW NODE
+
+  //     await sleep(animationTime)
+
+  //     if(curNode.isFinal){
+  //       accepted = true
+  //     }
+
+  //     for(let node of curNode.coNodes){
+  //       if(node.transition == "ε"){
+  //         node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+    
+  //         await sleep(animationTime)
+    
+  //         curNode = node.target
+
+          
+
+  //         epsilonExists = true
+          
+  //         break
+  //       }
+  //     }
+  //     if(!epsilonExists){
+  //       stopLoop = true
+  //     }
+
+  //   }
+
+    
+  //   if(accepted == true){
+  //     alert("String is accepted")
+  //     console.log("String is accepted")
+  //   }
+  //   else {
+  //     alert("String is rejected")
+  //     console.log("String is rejected")
+  //   }
+
+  //   return
+  // }
