@@ -16,6 +16,7 @@ html, body {
     margin: 0;
     padding: 0;
     background-color: #171e24;
+    font-family: 'Open Sans', sans-serif;
 }
 canvas {
     display: block;
@@ -29,13 +30,19 @@ button {
   padding: 10px;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
   text-align: "center";
   justify-content: "center";
   font-size: 12px;
   font-family: 'Open Sans', sans-serif;
   font-weight:normal;
-  margin: 2px;
+  margin: 3px;
+}
+
+.controlsTitle {
+  color: white;
+  font-size: 12px;
+  margin: 3px;
 }
 
 form {
@@ -45,11 +52,11 @@ form {
   padding: 1.7vh;
   text-align: center;
   text-decoration: none;
-  display: inline-block;
+  display: inline-flex;
   font-size: 12px;
   font-family: 'Open Sans', sans-serif;
   font-weight:normal;
-  margin: 2px;
+  margin: 3px;
 }
 
 .input_field {
@@ -63,6 +70,7 @@ form {
   font-family: 'Open Sans', sans-serif;
   font-weight:normal;
   padding: 1.3vh;
+  margin: 3px;
 }
 
 h1 {
@@ -77,8 +85,9 @@ h1 {
 }
 
 .controls {
-  display: inline-block;
+  display: inline-flex;
   background-color: #171e24;
+  align-items:center;
   margin: 5px 30px 5px;
   padding: 0px;
 }
@@ -94,3 +103,38 @@ h1 {
   position: relative;
 }
   
+
+.slidecontainer {
+  width: 150px;
+}
+
+.slider {
+  -webkit-appearance: none;
+  width: 150px;
+  height: 15px;
+  background: #d3d3d3;
+  outline: none;
+  opacity: 0.7;
+  -webkit-transition: .2s;
+  transition: opacity .2s;
+}
+
+.slider:hover {
+  opacity: 1;
+}
+
+.slider::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 25px;
+  height: 25px;
+  background-color:#29597e;
+  cursor: pointer;
+}
+
+.slider::-moz-range-thumb {
+  width: 25px;
+  height: 25px;
+  background-color:#29597e;
+  cursor: pointer;
+}

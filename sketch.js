@@ -1,12 +1,13 @@
 
 let clickMode = "none"
 let inp
-let tempTransition
+let tempTransition = ""
 let stringValue = ""
 let keyPress
 let editingMode = false
+let animationTime = 300
 
-let test = 0
+const controlsHeight = document.getElementById("controlPanel").offsetHeight 
 
 // canvasWidth = 400
 // canvasHeight = 400
@@ -82,18 +83,31 @@ class Edge {
   draw(){
 
     if(this.end.name == undefined){
+
+
+      let keepEdges = [], keepConodes = []
+
       for(let [index, edge] of edges.entries()){
         if(edge == this && this.start.coNodes != undefined){
           for(let [index, node] of this.start.coNodes.entries()){
-            if(node.target = this.end){
-              this.start.coNodes.splice(index, 1)
+            if(node.target == this.end){
+              //this.start.coNodes.splice(index, 1)
             }
-            console.log(this.start.coNodes)
+            else {
+              console.log("KEEP")
+              keepConodes.push(node)
+            }
           }
           
-          edges.splice(index, 1)
+          //edges.splice(index, 1)
+        }
+        else {
+          keepEdges.push(edge)
         }
       }
+      this.start.coNodes = keepConodes
+      edges = keepEdges
+
       return
     }
     if(this.start.name == undefined){
@@ -239,14 +253,21 @@ class Edge {
       tempTransition = this.value()
       console.log(tempTransition)
     })
+
+
       
     if(keyPress == "Enter") {
       editingMode = false
-      console.log(test)
       clickMode = "addEdge"
       let endNode = this.end
 
       let edgeToUse = this;
+
+      //For epsilon
+      if(tempTransition == ""){
+        tempTransition = "ε"
+      }
+
 
       for(let node of this.start.coNodes){
         if(node.edge.end == this.end){
@@ -274,9 +295,16 @@ class Edge {
 }
 
 function keyPressed() {
-  if (keyCode === ENTER) {
+  if (keyCode == ENTER) {
     console.log("Enter")
     keyPress = "Enter"
+  }
+}
+
+function keyTyped() {
+  if (key === 'a') {
+    console.log(nodes)
+    console.log(edges)
   }
 }
 
@@ -301,7 +329,6 @@ function handleAddEdge() {
   clickMode = "addEdge"
 }
 
-
 function handleMouse() {
   clickMode = "none"
 }
@@ -324,12 +351,22 @@ function handleStringInput() {
   stringValue = document.getElementById("testString").value
 }
 
+document.getElementById("animSlider").innerHTML = 300
+
+function handleSliderAnimChange() {
+  output = document.getElementById("myRange").value
+  document.getElementById("animSlider").innerHTML = output * 50
+
+  animationTime = output * 50
+  //var output = 
+  //output.innerHTML = slider.value; // Display the default slider value
+}
+
 function sleep(ms){
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
 async function testString() {
-  let animationTime = 400
 
   let curNode = null;
   for(let node of nodes){
@@ -344,18 +381,16 @@ async function testString() {
 
     for(let s of stringValue){
       charFound = false
-      console.log(edges.length)
+      //console.log(edges.length)
       for(let node of curNode.coNodes){
         if(node.transition === s){
           
-          //curNode.color = [255,255,255] //OLD NODE RESET COLOR
           node.edge.color = [255, 242, 0] //TRAVERSED EDGE
 
           await sleep(animationTime)
 
-          //node.edge.color = [255,255,255] //TRAVERSED EDGE RESET COLOR
 
-          console.log(node.target)
+          //console.log(node.target)
           curNode = node.target
 
           curNode.color = [255, 242, 0] //NEW NODE
@@ -380,11 +415,145 @@ async function testString() {
       console.log("Reject")
       alert("String is Rejected")
     }
-
-    //curNode.color = [255,255,255] //RESET COLOR NODE
   }
 }
 
+let fromEpsilon
+
+async function testStringHelper() {
+  let curNode = null;
+  fromEpsilon = false;
+  for(let node of nodes){
+    if(node.isInitial){
+      curNode = node
+      break
+    }
+  }
+
+/*
+  if(stringValue == "" && curNode != null){
+    let epsilonExists
+    let stopLoop = false
+    let accepted = false
+    while(!stopLoop){
+      epsilonExists = false
+      
+      curNode.color = [255, 242, 0] //NEW NODE
+
+      await sleep(animationTime)
+
+      if(curNode.isFinal){
+        accepted = true
+      }
+
+      for(let node of curNode.coNodes){
+        if(node.transition == "ε"){
+          node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+    
+          await sleep(animationTime)
+    
+          curNode = node.target
+
+          
+
+          epsilonExists = true
+          
+          break
+        }
+      }
+      if(!epsilonExists){
+        stopLoop = true
+      }
+
+    }
+    if(accepted == true){
+      alert("String is accepted")
+      //console.log("String is accepted")
+    }
+    else {
+      alert("String is rejected")
+      //console.log("String is rejected")
+    }
+
+    return
+  }
+*/
+
+  if(curNode != null){
+    //curNode.color = [255, 242, 0]
+    //await sleep(animationTime)
+    if(await testStringRecursion(curNode, 0)){
+      alert("String is accepted")
+      //console.log("String is accepted")
+    }
+    else {
+      alert("String is rejected")
+      //console.log("String is rejected")
+    }
+  }
+}
+async function testStringRecursion(curNode, index){
+  
+  curNode.color = [255, 242, 0] //NEW NODE
+  await sleep(animationTime)
+
+  let accepted = false
+  for(let node of curNode.coNodes){
+    
+    if(index < stringValue.length && node.transition == stringValue[index]){
+      fromEpsilon = false
+      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+      await sleep(animationTime)
+
+      curNode = node.target
+
+      if(await testStringRecursion(curNode, index + 1)){
+        accepted = true
+        console.log(accepted)
+        continue
+      }
+    }
+    else if(node.transition == "ε"){
+      console.log("EPSILON YES")
+      fromEpsilon = true
+      node.edge.color = [255, 242, 0] //TRAVERSED EDGE
+
+      await sleep(animationTime)
+
+      curNode = node.target
+
+      if(index == stringValue.length && curNode.isFinal){
+        accepted = true
+      }
+
+      if(await testStringRecursion(curNode, index)){
+        accepted = true
+        console.log(accepted)
+        continue
+      }
+    }
+
+  }
+  console.log("Here")
+  console.log(curNode)
+  if(index == stringValue.length && fromEpsilon == false){
+    if(curNode.isFinal){
+      console.log("RETURN TRUE")
+      return true
+    }
+    else {
+      console.log("RETURN FALSE")
+      return false
+    }
+  }
+
+  if(accepted == true){
+    console.log("NANDITO")
+    return true
+  }
+  return false
+}
 
 function applyInputStyle() {
   stringInput.style("border", "none")
@@ -399,7 +568,7 @@ function applyInputStyle() {
 }
 
 function setup() {
-  let cnv = createCanvas(windowWidth, windowHeight);
+  let cnv = createCanvas(windowWidth, windowHeight - controlsHeight);
   cnv.parent("sketchHolder");
   console.log(cnv)
   
@@ -452,7 +621,7 @@ async function testFunction() {
 
 async function mousePressed(){
 
-  if(mouseButton == LEFT){
+  if(mouseButton == LEFT && mouseY > 0){
     if(clickMode == "addNode"){
       console.log(nodes)
       var newNode = new GraphNode("q" + str(nodes.length), mouseX, mouseY)
@@ -479,6 +648,7 @@ async function mousePressed(){
           selectedNode.x = mouseX
           selectedNode.y = mouseY
           selectedNode.color = [255, 242, 0];
+          console.log(selectedNode.coNodes)
           break
         }
       }
@@ -506,22 +676,30 @@ async function mousePressed(){
               edge.edgeType = "straight"
               break
             }
-          }
 
+          let keepItems = []
           for(let [index, node] of selectedEdge.start.coNodes.entries()){
-            if(node.edge = selectedEdge){
+            
 
-              selectedEdge.start.coNodes.splice(index, 1)
-              console.log(selectedEdge.start.coNodes)
+            console.log(selectedEdge.start.coNodes.entries())
+            console.log("FIRE")
+            if(node.edge = selectedEdge){
+              console.log("HIT")
+              //selectedEdge.start.coNodes.splice(index, 1)
+              //console.log(selectedEdge.start.coNodes)
+            }
+            else{
+              keepItems.push(node)
             }
           }
+          selectedEdge.start.coNodes = keepItems
           console.log(selectedEdge.start.coNodes)
           edges.splice(index, 1)
 
           break
+          }
         }
       }
-
 
     }
     else if(clickMode == "setInitialState"){
@@ -563,7 +741,7 @@ async function mousePressed(){
 }
 
 function mouseDragged(){
-  if(mouseButton == LEFT){
+  if(mouseButton == LEFT && mouseY > 0){
     if(clickMode == "addEdge"){
       endx = mouseX
       endy = mouseY

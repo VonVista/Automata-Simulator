@@ -10,25 +10,33 @@
   <body>
     
     <!-- <button onClick = clickTest()>Click test</button> -->
-    <div id="controlPanel" height=2000>
-      <h1>Deterministic Finite Automata Simulator</h1>
+    <div id="controlPanel">
+      <h1>Finite Automata Simulator</h1>
       <div class="controlsParent"> 
         <div class="controls">
+          <p class="controlsTitle">General</p>
           <button onClick = handleMouse()>
             Mouse
           </button>
           <button onClick = handleAddNode()>Add Node</button>
           <button onClick = handleAddEdge()>Add Edge</button>
           <button onClick = handleRemoveNode()>Remove Node/Edge</button>
+
+          <p class="controlsTitle" style="margin-left:20px;">Modifiers</p>
+          <button onClick = handleSetInitialState() style="background-color:#797e29;">Set Initial State</button>
+          <button onClick = handleSetFinalState() style="background-color:#797e29;">Set Final State</button>
+          <button onClick = handleRemoveNodeState() style="background-color:#797e29;">Remove Node State</button>
         </div>
+          
         <div class="controls"> 
-          <button onClick = handleSetInitialState()>Set Initial State</button>
-          <button onClick = handleSetFinalState()>Set Final State</button>
-          <button onClick = handleRemoveNodeState()>Remove Node State</button>
-        </div>
-        <div class="controls"> 
-          <input type="text" id="testString" placeholder="Input string to test" onChange=handleStringInput() class="input_field"></input>
-          <button onClick = testString()>Submit</button>
+          <p class="controlsTitle">Test string</p>
+          <input type="text" id="testString" placeholder="Input string to test" onChange=handleStringInput() 
+          class="input_field" style="background-color:#7e2929"></input>
+          <button onClick = testStringHelper() style="background-color:#7e2929">Submit</button>
+
+          <p class="controlsTitle" style="margin-left:20px;">Animation Speed</p>
+          <input type="range" oninput=handleSliderAnimChange() min="0" max="100" value="6" class="slider" id="myRange">
+          <p class="controlsTitle" id=animSlider></p>
         </div>
       </div>
     </div>
